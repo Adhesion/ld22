@@ -49,6 +49,11 @@ namespace ld22
             rotation += (destRotation - rotation) / 10.0f;
         }
 
+        public override void fireBullet()
+        {
+            characterManager.addBullet(this, Color.OrangeRed, 10);
+        }
+
         protected virtual void runAI()
         {
             float val = (float)Game1.random.NextDouble();

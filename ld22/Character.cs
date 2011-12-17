@@ -143,7 +143,7 @@ namespace ld22
             {
                 if (fireCounter == 0)
                 {
-                    characterManager.addBullet(this);
+                    fireBullet();
                 }
                 fireCounter = (fireCounter + 1) % fireCounterMax;
             }
@@ -159,6 +159,11 @@ namespace ld22
                 else if (pos.Y < levelManager.getCurrentLevelArea().Top)
                     pos.Y = levelManager.getCurrentLevelArea().Top;
             }
+        }
+
+        public virtual void fireBullet()
+        {
+            // player and enemy override this
         }
 
         public bool isAlive()

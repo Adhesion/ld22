@@ -12,22 +12,14 @@ namespace ld22
         protected int damage;
         protected int lifetime;
 
-        public Bullet(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l, bool flip, int d) :
+        public Bullet(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l, Color c, int d) :
             base(s, p, v, _hp, l)
         {
             friction = 1.0f;
             lifetime = 200;
             damage = d;
 
-            if (flip)
-            {
-                effect = SpriteEffects.FlipVertically;
-                col = Color.BlueViolet;
-            }
-            else
-            {
-                col = Color.Yellow;
-            }
+            col = c;
 
             bounded = false;
         }

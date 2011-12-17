@@ -84,31 +84,25 @@ namespace ld22
             removedPlayerBullets.Clear();
         }
 
-        public void addBullet(Character c)
+        public void addBullet(Character c, Color col, int damage)
         {
             Vector2 vel = c.getVel() * 0.1f;
             vel += (new Vector2((float)Math.Cos(c.getRotation() - Math.PI / 2),
                 (float)Math.Sin(c.getRotation() - Math.PI / 2))) * 4.0f;
             List<Bullet> l;
-            bool flip;
-            int d;
 
             if (c is Player)
             {
                 vel *= 3.0f;
                 l = playerBullets;
-                flip = false;
-                d = 10;
             }
             else
             {
                 vel *= 2.0f;
                 l = enemyBullets;
-                flip = true;
-                d = 5;
             }
 
-            Bullet b = new Bullet(bulletSprite, c.getPos(), vel, 1, levelManager, flip, d);
+            Bullet b = new Bullet(bulletSprite, c.getPos(), vel, 1, levelManager, col, damage);
             b.setRotation(c.getRotation());
             l.Add(b);
         }

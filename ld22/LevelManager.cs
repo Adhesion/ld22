@@ -13,16 +13,18 @@ namespace ld22
         int currentLevel;
 
         Texture2D[] starTex;
+        Texture2D[] backTex;
 
         protected IDictionary<float, List<Character>> backgrounds;
 
-        public LevelManager(Texture2D[] _starTex )
+        public LevelManager(Texture2D[] _starTex, Texture2D[] _backTex )
         {
             backgrounds = new Dictionary<float, List<Character>>();
             currentLevelArea = new Rectangle(-500, -500, 1000, 1000);
             currentLevel = 0;
 
             starTex = _starTex;
+            backTex = _backTex;
         }
 
         public Rectangle getCurrentLevelArea()
@@ -31,6 +33,12 @@ namespace ld22
         }
 
         public void initLevel(int level)
+        {
+            currentLevel = level;
+            makeBackground();
+        }
+
+        public void makeBackground()
         {
             backgrounds.Clear();
             float zoom = 0.2f;
@@ -52,7 +60,25 @@ namespace ld22
                 backgrounds.Add(new KeyValuePair<float, List<Character>>(zoom, starfield));
                 zoom *= 1.4f;
             }
-            
+
+            if (currentLevel >= 1 && currentLevel <= 4)
+            {
+                List<Character> back1 = new List<Character>();
+                List<Character> back2 = new List<Character>();
+                Vector2 p = new Vector2(currentLevelArea.X, currentLevelArea.Y);
+
+                TileBackground tb1 = new TileBackground(backTex[currentLevel-1], p, new Vector2(0.0f, 0.0f), 1, this);
+                float r = (float)(Game1.random.NextDouble() * 2.0f * Math.PI);
+                tb1.setRotation(1.0f);
+                back1.Add(tb1);
+                TileBackground tb2 = new TileBackground(backTex[currentLevel - 1], p, new Vector2(0.0f, 0.0f), 1, this);
+                r = (float)(Game1.random.NextDouble() * 2.0f * Math.PI);
+                tb2.setRotation(2.2f);
+                back2.Add(tb2);
+
+                backgrounds.Add(new KeyValuePair<float, List<Character>>(0.5f, back1));
+                backgrounds.Add(new KeyValuePair<float, List<Character>>(0.75f, back2));
+            }
         }
 
         public void render(SpriteBatch batch, float zoomLevel)

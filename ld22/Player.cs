@@ -14,5 +14,10 @@ namespace ld22
         {
             setBoxScale(new Vector2(0.1f, 0.1f));
         }
+
+        public override void fireBullet()
+        {
+            characterManager.addBullet(this, Color.Yellow, 10);
+        }
     }
 }

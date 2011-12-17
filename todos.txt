@@ -1,5 +1,5 @@
--explosion effects
--limit movement to camera bounds
+-sound effects & music
 -font
 -start/exit buttons on level 0
--sound effects & music
+-explosion effects
+-limit movement to camera bounds X
