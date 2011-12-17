@@ -88,19 +88,21 @@ namespace ld22
             inputHandler = new InputHandler(player);
 
             player.setCharacterManager(characterManager);
+            levelManager.setCharacterManager(characterManager);
 
             characterManager.setBulletSprite(playerBulletSprite);
             characterManager.setEnemySprite(enemy1Sprite);
             characterManager.setLevelManager(levelManager);
 
             cam = new Camera(GraphicsDevice, new Vector2(0.0f, 0.0f), player, levelManager);
+            characterManager.setCam(cam);
 
-            for (int i = 0; i < 20; i++)
-            {
-                characterManager.addEnemy();
-            }
+            //for (int i = 0; i < 20; i++)
+            //{
+            //    characterManager.addEnemy();
+            //}
 
-            levelManager.initLevel(4);
+            levelManager.initLevel(1);
         }
 
         /// <summary>
@@ -126,6 +128,7 @@ namespace ld22
             characterManager.update(gameTime);
             inputHandler.update(gameTime);
             cam.update(gameTime);
+            levelManager.update(gameTime);
 
             base.Update(gameTime);
         }
@@ -151,11 +154,6 @@ namespace ld22
                 levelManager.render(spriteBatch, f);
                 spriteBatch.End();
             }
-
-            //spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred,
-            //    SaveStateMode.SaveState, cam.getTransform());
-            
-            //spriteBatch.End();
 
             cam.setZoom(oldZoom);
 

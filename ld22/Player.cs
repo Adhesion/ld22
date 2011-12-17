@@ -17,6 +17,7 @@ namespace ld22
 
         public override void fireBullet()
         {
+            Console.WriteLine("player fired at " + pos);
             characterManager.addBullet(this, Color.Yellow, 10);
         }
     }

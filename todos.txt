@@ -2,4 +2,5 @@
 -font
 -start/exit buttons on level 0
 -explosion effects
+-health/shield/fire rate pickups
 -limit movement to camera bounds X

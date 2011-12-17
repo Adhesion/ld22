@@ -35,18 +35,26 @@ namespace ld22
         {
             base.update(gameTime);
 
-            if (aiCounter == 0)
+            if (characterManager.getCam().isOnCamera(pos))
             {
-                runAI();
-            }
-            if (faceCounter == 0)
-            {
-                facePlayer();
-            }
+                if (aiCounter == 0)
+                {
+                    runAI();
+                }
+                if (faceCounter == 0)
+                {
+                    facePlayer();
+                }
 
-            aiCounter = (aiCounter + 1) % aiCounterMax;
-            faceCounter = (faceCounter + 1) % faceCounterMax;
-            rotation += (destRotation - rotation) / 10.0f;
+                aiCounter = (aiCounter + 1) % aiCounterMax;
+                faceCounter = (faceCounter + 1) % faceCounterMax;
+                rotation += (destRotation - rotation) / 10.0f;
+            }
+            else
+            {
+                // to make sure they don't get stuck in a firing state
+                setFiring(false);
+            }
         }
 
         public override void fireBullet()
@@ -70,7 +78,7 @@ namespace ld22
         {
             float r;
             Player player = characterManager.getPlayer();
-            Vector2 playerVec = (player.getPos() - pos) + (player.getVel() * 50.0f);
+            Vector2 playerVec = (player.getPos() - pos) + (player.getVel() * 60.0f);
             r = (float)Math.Atan((double)(playerVec.Y / playerVec.X)) + (float)Math.PI / 2;
             if (playerVec.X < -0.01f)
                 r = (float)Math.PI + r;

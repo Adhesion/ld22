@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace ld22
 {
-    class Camera
+    public class Camera
     {
         protected float zoom;
         protected Vector2 pos;
@@ -18,6 +18,8 @@ namespace ld22
         protected Player player;
 
         protected LevelManager levelManager;
+
+        protected Rectangle camArea;
 
         public Camera(GraphicsDevice graphics, Vector2 _pos, Player _player, LevelManager _levelManager)
         {
@@ -49,8 +51,8 @@ namespace ld22
         {
             move(player.getPos() - pos);
 
-            Rectangle camArea = levelManager.getCurrentLevelArea();
-            camArea.Inflate(-300, -200);
+            camArea = levelManager.getCurrentLevelArea();
+            camArea.Inflate(-200, -200);
 
             if (pos.X < camArea.Left)
                 pos.X = camArea.Left;
@@ -88,6 +90,16 @@ namespace ld22
         public Matrix getTransform()
         {
             return transform;
+        }
+
+        public bool isOnCamera(Vector2 p)
+        {
+            float left = pos.X - 500;
+            float right = pos.X + 500;
+            float top = pos.Y - 500;
+            float bottom = pos.Y + 500;
+            return (left < p.X && p.X < right &&
+                top < p.Y && p.Y < bottom);
         }
     }
 }

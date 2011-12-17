@@ -13,13 +13,17 @@ namespace ld22
         protected List<Character> enemies;
         protected List<Bullet> enemyBullets;
         protected List<Bullet> playerBullets;
+        protected List<Character> eggs;
 
         protected List<Character> removedEnemies;
         protected List<Bullet> removedEnemyBullets;
         protected List<Bullet> removedPlayerBullets;
+        protected List<Character> removedEggs;
 
         protected Texture2D bulletSprite;
         protected Texture2D enemySprite;
+
+        protected Camera cam;
 
         protected LevelManager levelManager;
 
@@ -30,10 +34,12 @@ namespace ld22
             enemies = new List<Character>();
             enemyBullets = new List<Bullet>();
             playerBullets = new List<Bullet>();
+            eggs = new List<Character>();
 
             removedEnemies = new List<Character>();
             removedEnemyBullets = new List<Bullet>();
             removedPlayerBullets = new List<Bullet>();
+            removedEggs = new List<Character>();
         }
 
         public void setBulletSprite(Texture2D sprite)
@@ -56,6 +62,16 @@ namespace ld22
             return player;
         }
 
+        public Camera getCam()
+        {
+            return cam;
+        }
+
+        public void setCam(Camera c)
+        {
+            cam = c;
+        }
+
         public void render(SpriteBatch batch)
         {
             player.render(batch);
@@ -71,6 +87,10 @@ namespace ld22
             {
                 c.render(batch);
             }
+            foreach (Character c in eggs)
+            {
+                c.render(batch);
+            }
         }
 
         public void clear()
@@ -78,6 +98,7 @@ namespace ld22
             enemies.Clear();
             enemyBullets.Clear();
             playerBullets.Clear();
+            eggs.Clear();
 
             removedEnemies.Clear();
             removedEnemyBullets.Clear();
@@ -98,7 +119,7 @@ namespace ld22
             }
             else
             {
-                vel *= 2.0f;
+                vel *= 1.5f;
                 l = enemyBullets;
             }
 
@@ -107,12 +128,28 @@ namespace ld22
             l.Add(b);
         }
 
-        public void addEnemy()
+        public void addEnemy(Vector2 p)
         {
-            Vector2 pos = new Vector2(Game1.random.Next(-250, 250), Game1.random.Next(-250, -100));
-            Character e = new Enemy1(enemySprite, pos, new Vector2(0.0f, 0.0f), 30, levelManager);
+            //Vector2 pos = new Vector2(Game1.random.Next(-250, 250), Game1.random.Next(-250, -100));
+            Character e = new Enemy1(enemySprite, p, new Vector2(0.0f, 0.0f), 30, levelManager);
             e.setCharacterManager(this);
             enemies.Add(e);
+        }
+
+        public void addEgg(Vector2 pos)
+        {
+            Character e = new Character(bulletSprite, pos, new Vector2(0.0f, 0.0f), 1, levelManager);
+            eggs.Add(e);
+        }
+
+        public int getEggNum()
+        {
+            return eggs.Count;
+        }
+
+        public List<Character> getEggs()
+        {
+            return eggs;
         }
 
         public void update(GameTime gameTime)
@@ -143,6 +180,14 @@ namespace ld22
                     removedPlayerBullets.Add(bullet);
                 }
             }
+            foreach (Character egg in eggs)
+            {
+                egg.update(gameTime);
+                if (!egg.isAlive())
+                {
+                    removedEggs.Add(egg);
+                }
+            }
 
             // check player shots
             foreach(Bullet bullet in playerBullets)
@@ -169,6 +214,16 @@ namespace ld22
                 }
             }
 
+            // check eggs
+            foreach (Character egg in eggs)
+            {
+                if (egg.getBoundingBox().Intersects(player.getBoundingBox()))
+                {
+                    egg.kill();
+                    // add sound effect here
+                }
+            }
+
             foreach (Bullet b in removedPlayerBullets)
             {
                 playerBullets.Remove(b);
@@ -180,6 +235,10 @@ namespace ld22
             foreach (Character b in removedEnemies)
             {
                 enemies.Remove(b);
+            }
+            foreach (Character e in removedEggs)
+            {
+                eggs.Remove(e);
             }
         }
     }

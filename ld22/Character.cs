@@ -179,11 +179,11 @@ namespace ld22
         public void hit(int damage)
         {
             hp -= damage;
-            Console.WriteLine("Character hit hp now " + hp);
+            //Console.WriteLine("Character hit hp now " + hp);
             if (hp <= 0)
             {
                 alive = false;
-                Console.WriteLine("Character dead");
+                //Console.WriteLine("Character dead");
             }
         }
 
