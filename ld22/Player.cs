@@ -9,8 +9,8 @@ namespace ld22
 {
     public class Player : Character
     {
-        public Player(Texture2D _sprite, Vector2 _pos, Vector2 _vel, int _hp) :
-            base(_sprite, _pos, _vel, _hp)
+        public Player(Texture2D _sprite, Vector2 _pos, Vector2 _vel, int _hp, LevelManager l) :
+            base(_sprite, _pos, _vel, _hp, l)
         {
             setBoxScale(new Vector2(0.1f, 0.1f));
         }

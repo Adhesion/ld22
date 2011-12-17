@@ -27,6 +27,7 @@ namespace ld22
         Texture2D playerSprite;
         Texture2D enemy1Sprite;
         Texture2D playerBulletSprite;
+        Texture2D[] starTex;
 
         CharacterManager characterManager;
         InputHandler inputHandler;
@@ -66,27 +67,32 @@ namespace ld22
             playerSprite = Content.Load<Texture2D>("playership");
             enemy1Sprite = Content.Load<Texture2D>("enemy1");
             playerBulletSprite = Content.Load<Texture2D>("playerbullet");
+            starTex = new Texture2D[3];
+            starTex[0] = Content.Load<Texture2D>("star1");
+            starTex[1] = Content.Load<Texture2D>("star2");
+            starTex[2] = Content.Load<Texture2D>("star3");
 
-            player = new Player(playerSprite, new Vector2(320.0f, 500.0f),
-                new Vector2(0.0f, 0.0f), 100);
+            levelManager = new LevelManager(starTex);
+
+            player = new Player(playerSprite, new Vector2(0.0f, 0.0f),
+                new Vector2(0.0f, 0.0f), 100, levelManager);
             characterManager = new CharacterManager(player);
             inputHandler = new InputHandler(player);
 
-            levelManager = new LevelManager();
-
             player.setCharacterManager(characterManager);
-            player.setLevelManager(levelManager);
 
             characterManager.setBulletSprite(playerBulletSprite);
             characterManager.setEnemySprite(enemy1Sprite);
             characterManager.setLevelManager(levelManager);
 
-            cam = new Camera(GraphicsDevice, new Vector2(0.0f, 0.0f), player);
+            cam = new Camera(GraphicsDevice, new Vector2(0.0f, 0.0f), player, levelManager);
 
             for (int i = 0; i < 20; i++)
             {
                 characterManager.addEnemy();
             }
+
+            levelManager.initLevel(0);
         }
 
         /// <summary>
@@ -123,6 +129,19 @@ namespace ld22
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
+
+            float oldZoom = cam.getZoom();
+
+            foreach (float f in levelManager.getBackgroundLevels())
+            {
+                cam.setZoom(f);
+                spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred,
+                    SaveStateMode.SaveState, cam.getTransform());
+                levelManager.render(spriteBatch, f);
+                spriteBatch.End();
+            }
+
+            cam.setZoom(oldZoom);
 
             spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred,
                 SaveStateMode.SaveState, cam.getTransform());

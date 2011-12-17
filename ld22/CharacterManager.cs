@@ -51,6 +51,11 @@ namespace ld22
             levelManager = l;
         }
 
+        public Player getPlayer()
+        {
+            return player;
+        }
+
         public void render(SpriteBatch batch)
         {
             player.render(batch);
@@ -81,36 +86,38 @@ namespace ld22
 
         public void addBullet(Character c)
         {
-            Vector2 vel = c.getVel() * 0.3f;
+            Vector2 vel = c.getVel() * 0.1f;
+            vel += (new Vector2((float)Math.Cos(c.getRotation() - Math.PI / 2),
+                (float)Math.Sin(c.getRotation() - Math.PI / 2))) * 4.0f;
             List<Bullet> l;
             bool flip;
             int d;
 
             if (c is Player)
             {
-                vel -= new Vector2(0.0f, 7.5f);
+                vel *= 3.0f;
                 l = playerBullets;
                 flip = false;
                 d = 10;
             }
             else
             {
-                vel += new Vector2(0.0f, 5.0f);
+                vel *= 2.0f;
                 l = enemyBullets;
                 flip = true;
                 d = 5;
             }
 
-            Bullet b = new Bullet(bulletSprite, c.getPos(), vel, 1, flip, d);
+            Bullet b = new Bullet(bulletSprite, c.getPos(), vel, 1, levelManager, flip, d);
+            b.setRotation(c.getRotation());
             l.Add(b);
         }
 
         public void addEnemy()
         {
-            Vector2 pos = new Vector2(Game1.random.Next(0, 640), Game1.random.Next(0, 100));
-            Character e = new Enemy1(enemySprite, pos, new Vector2(0.0f, 0.0f), 30);
+            Vector2 pos = new Vector2(Game1.random.Next(-250, 250), Game1.random.Next(-250, -100));
+            Character e = new Enemy1(enemySprite, pos, new Vector2(0.0f, 0.0f), 30, levelManager);
             e.setCharacterManager(this);
-            e.setLevelManager(levelManager);
             enemies.Add(e);
         }
 

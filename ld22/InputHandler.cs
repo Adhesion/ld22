@@ -21,23 +21,33 @@ namespace ld22
             KeyboardState keyboardState = Keyboard.GetState();
 
             Vector2 vel = new Vector2(0.0f, 0.0f);
-            if (keyboardState.IsKeyDown(Keys.Up))
+            if (keyboardState.IsKeyDown(Keys.W))
             {
                 vel.Y -= 0.5f;
             }
-            if (keyboardState.IsKeyDown(Keys.Down))
+            if (keyboardState.IsKeyDown(Keys.S))
             {
                 vel.Y += 0.5f;
             }
-            if (keyboardState.IsKeyDown(Keys.Left))
+            if (keyboardState.IsKeyDown(Keys.A))
             {
                 vel.X -= 0.5f;
             }
-            if (keyboardState.IsKeyDown(Keys.Right))
+            if (keyboardState.IsKeyDown(Keys.D))
             {
                 vel.X += 0.5f;
             }
 
+            if (keyboardState.IsKeyDown(Keys.Left))
+            {
+                player.rotate(-0.02f);
+            }
+            else if (keyboardState.IsKeyDown(Keys.Right))
+            {
+                player.rotate(0.02f);
+            }
+
+            vel = Vector2.Transform(vel, Matrix.CreateRotationZ(player.getRotation()));
             player.addVel(vel);
             player.setFiring(keyboardState.IsKeyDown(Keys.Space));
         }

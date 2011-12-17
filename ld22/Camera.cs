@@ -17,13 +17,16 @@ namespace ld22
 
         protected Player player;
 
-        public Camera(GraphicsDevice graphics, Vector2 _pos, Player _player)
+        protected LevelManager levelManager;
+
+        public Camera(GraphicsDevice graphics, Vector2 _pos, Player _player, LevelManager _levelManager)
         {
             screenPos.X = graphics.Viewport.Width / 2;
             screenPos.Y = graphics.Viewport.Height / 2;
             pos = _pos;
             player = _player;
             zoom = 1.0f;
+            levelManager = _levelManager;
         }
 
         public float getZoom()
@@ -46,6 +49,27 @@ namespace ld22
         {
             move(player.getPos() - pos);
 
+            Rectangle camArea = levelManager.getCurrentLevelArea();
+            camArea.Inflate(-300, -200);
+
+            if (pos.X < camArea.Left)
+                pos.X = camArea.Left;
+            else if (pos.X > camArea.Right)
+                pos.X = camArea.Right;
+            if (pos.Y > camArea.Bottom)
+                pos.Y = camArea.Bottom;
+            else if (pos.Y < camArea.Top)
+                pos.Y = camArea.Top;
+
+            /*if (pos.X - screenPos.X < levelManager.getCurrentLevelArea().Left)
+                pos.X = levelManager.getCurrentLevelArea().Left + screenPos.X;
+            else if (pos.X + screenPos.X > levelManager.getCurrentLevelArea().Right)
+                pos.X = levelManager.getCurrentLevelArea().Right - screenPos.X;
+            if (pos.Y + screenPos.Y > levelManager.getCurrentLevelArea().Bottom)
+                pos.Y = levelManager.getCurrentLevelArea().Bottom - screenPos.Y;
+            else if (pos.Y - screenPos.Y < levelManager.getCurrentLevelArea().Top)
+                pos.Y = levelManager.getCurrentLevelArea().Top + screenPos.Y;*/
+
             updateTransform();
             //Console.WriteLine(transform);
         }
@@ -54,7 +78,7 @@ namespace ld22
         {
             transform = Matrix.Identity *
                         Matrix.CreateTranslation(new Vector3(-pos.X, -pos.Y, 0.0f)) *
-                        Matrix.CreateRotationZ(0.0f) *
+                        Matrix.CreateRotationZ(-player.getRotation()) *
                         Matrix.CreateScale(zoom, zoom, 0) *
                         Matrix.CreateTranslation(new Vector3(screenPos.X, screenPos.Y, 0.0f));
             //transform = Matrix.CreateTranslation(new Vector3(screenPos - pos, 0.0f));

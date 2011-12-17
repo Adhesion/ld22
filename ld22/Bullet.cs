@@ -12,8 +12,8 @@ namespace ld22
         protected int damage;
         protected int lifetime;
 
-        public Bullet(Texture2D s, Vector2 p, Vector2 v, int _hp, bool flip, int d) :
-            base(s, p, v, _hp)
+        public Bullet(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l, bool flip, int d) :
+            base(s, p, v, _hp, l)
         {
             friction = 1.0f;
             lifetime = 200;

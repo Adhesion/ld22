@@ -15,6 +15,8 @@ namespace ld22
         protected Vector2 vel;
         protected Vector2 center;
 
+        protected float rotation;
+
         protected float friction;
 
         protected int hp;
@@ -34,7 +36,7 @@ namespace ld22
 
         protected bool bounded;
 
-        public Character(Texture2D _sprite, Vector2 _pos, Vector2 _vel, int _hp)
+        public Character(Texture2D _sprite, Vector2 _pos, Vector2 _vel, int _hp, LevelManager l)
         {
             sprite = _sprite;
             pos = _pos;
@@ -55,20 +57,18 @@ namespace ld22
 
             friction = 0.9f;
 
+            rotation = 0.0f;
+
             col = Color.White;
             effect = SpriteEffects.None;
 
             bounded = true;
+            levelManager = l;
         }
 
         public void setCharacterManager(CharacterManager c)
         {
             characterManager = c;
-        }
-
-        public void setLevelManager(LevelManager l)
-        {
-            levelManager = l;
         }
 
         public void setBoxScale(Vector2 bs)
@@ -97,6 +97,21 @@ namespace ld22
             vel += v;
         }
 
+        public float getRotation()
+        {
+            return rotation;
+        }
+
+        public virtual void setRotation(float r)
+        {
+            rotation = r;
+        }
+
+        public virtual void rotate(float r)
+        {
+            rotation += r;
+        }
+
         public Vector2 getPos()
         {
             return pos;
@@ -108,7 +123,7 @@ namespace ld22
                 pos,
                 null,
                 col,
-                0.0f,
+                rotation,
                 center,
                 1.0f,
                 effect,
@@ -139,7 +154,7 @@ namespace ld22
                     pos.X = levelManager.getCurrentLevelArea().Left;
                 else if (pos.X > levelManager.getCurrentLevelArea().Right)
                     pos.X = levelManager.getCurrentLevelArea().Right;
-                if (pos.Y < levelManager.getCurrentLevelArea().Bottom)
+                if (pos.Y > levelManager.getCurrentLevelArea().Bottom)
                     pos.Y = levelManager.getCurrentLevelArea().Bottom;
                 else if (pos.Y < levelManager.getCurrentLevelArea().Top)
                     pos.Y = levelManager.getCurrentLevelArea().Top;
