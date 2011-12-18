@@ -14,16 +14,20 @@ namespace ld22
         protected List<Bullet> enemyBullets;
         protected List<Bullet> playerBullets;
         protected List<Character> eggs;
+        protected List<Bullet> effects;
 
         protected List<Character> removedEnemies;
         protected List<Bullet> removedEnemyBullets;
         protected List<Bullet> removedPlayerBullets;
         protected List<Character> removedEggs;
-        protected List<Character> removeds;
+        protected List<Bullet> removedEffects;
 
         protected Texture2D bulletSprite;
         protected Texture2D[] enemySprites;
         protected Texture2D eggSprite;
+        protected Texture2D arrowSprite;
+        protected Texture2D sparkSprite;
+        protected Texture2D explosionSprite;
 
         protected Camera cam;
 
@@ -41,11 +45,13 @@ namespace ld22
             enemyBullets = new List<Bullet>();
             playerBullets = new List<Bullet>();
             eggs = new List<Character>();
+            effects = new List<Bullet>();
 
             removedEnemies = new List<Character>();
             removedEnemyBullets = new List<Bullet>();
             removedPlayerBullets = new List<Bullet>();
             removedEggs = new List<Character>();
+            removedEffects = new List<Bullet>();
 
             deathTimerMax = 180;
             deathTimer = deathTimerMax;
@@ -64,6 +70,21 @@ namespace ld22
         public void setEggSprite(Texture2D sprite)
         {
             eggSprite = sprite;
+        }
+
+        public void setArrowSprite(Texture2D sprite)
+        {
+            arrowSprite = sprite;
+        }
+
+        public void setExplosionSprite(Texture2D sprite)
+        {
+            explosionSprite = sprite;
+        }
+
+        public void setSparkSprite(Texture2D sprite)
+        {
+            sparkSprite = sprite;
         }
 
         public void setLevelManager(LevelManager l)
@@ -93,10 +114,6 @@ namespace ld22
 
         public void render(SpriteBatch batch)
         {
-            if (player.isAlive())
-            {
-                player.render(batch);
-            }
             foreach(Character c in enemies)
             {
                 c.render(batch);
@@ -113,6 +130,33 @@ namespace ld22
             {
                 c.render(batch);
             }
+            foreach (Character c in effects)
+            {
+                c.render(batch);
+            }
+            if (player.isAlive())
+            {
+                // draw egg vector
+                if (eggs.Count > 0)
+                {
+                    Vector2 playerVec = (eggs[0].getPos() - player.getPos());
+                    float r = (float)Math.Atan((double)(playerVec.Y / playerVec.X)) + (float)Math.PI / 2;
+                    if (playerVec.X < -0.01f)
+                        r = (float)Math.PI + r;
+                    else
+                        r = (2.0f * (float)Math.PI) + r;
+                    batch.Draw(arrowSprite,
+                        player.getPos(),
+                        null,
+                        Color.Red,
+                        r,
+                        new Vector2(arrowSprite.Width / 2, arrowSprite.Height / 2),
+                        0.5f,
+                        SpriteEffects.None,
+                        0.0f);
+                }
+                player.render(batch);
+            }
         }
 
         public void clear()
@@ -121,11 +165,13 @@ namespace ld22
             enemyBullets.Clear();
             playerBullets.Clear();
             eggs.Clear();
+            effects.Clear();
 
             removedEnemies.Clear();
             removedEnemyBullets.Clear();
             removedPlayerBullets.Clear();
             removedEggs.Clear();
+            removedEffects.Clear();
         }
 
         public void addBullet(Character c, Color col, int damage)
@@ -156,12 +202,34 @@ namespace ld22
             l.Add(b);
         }
 
-        public void addEnemy(Vector2 p, int type)
+        public void addSparks(Vector2 p, Vector2 vel)
+        {
+            int num = Game1.random.Next(0, 6);
+            for (int i = 0; i < num; i++)
+            {
+                Vector2 v = new Vector2(Game1.random.Next(-3, 3), Game1.random.Next(-3, 3));
+                Color col = new Color(255, Game1.random.Next(180, 256), 40);
+                Bullet s = new Bullet(sparkSprite, p, v + vel, 1, levelManager, Color.Yellow, 0);
+                s.setScale(0.5f);
+                effects.Add(s);
+            }
+        }
+
+        public void addExplosion(Vector2 p, Vector2 vel, float scale)
+        {
+            Bullet s = new Bullet(explosionSprite, p, vel, 1, levelManager, Color.White, 0);
+            s.setScale(scale);
+            s.setGrow(true);
+            effects.Add(s);
+        }
+
+        public Enemy1 addEnemy(Vector2 p, int type)
         {
             //Vector2 pos = new Vector2(Game1.random.Next(-250, 250), Game1.random.Next(-250, -100));
-            Character e = new Enemy1(enemySprites[type], p, new Vector2(0.0f, 0.0f), 30, levelManager, type);
+            Enemy1 e = new Enemy1(enemySprites[type], p, new Vector2(0.0f, 0.0f), 30, levelManager, type);
             e.setCharacterManager(this);
-            enemies.Add(e);
+            enemies.Add((Character)e);
+            return e;
         }
 
         public void addEgg(Vector2 pos)
@@ -196,10 +264,12 @@ namespace ld22
                     removedEnemies.Add(enemy);
                     if (enemy.getType() == 3)
                     {
+                        addExplosion(enemy.getPos(), enemy.getVel()/5.0f, 0.5f);
                         soundManager.bossDeath();
                     }
                     else
                     {
+                        addExplosion(enemy.getPos(), enemy.getVel()/5.0f, 1.0f);
                         soundManager.enemyDeath();
                     }
                 }
@@ -228,15 +298,26 @@ namespace ld22
                     removedEggs.Add(egg);
                 }
             }
+            foreach (Bullet eff in effects)
+            {
+                eff.update(gameTime);
+                if (!eff.isAlive())
+                {
+                    removedEffects.Add(eff);
+                }
+            }
 
             // check player shots
             foreach(Bullet bullet in playerBullets)
             {
                 foreach(Character enemy in enemies)
                 {
-                    if (bullet.getBoundingBox().Intersects(enemy.getBoundingBox()))
+                    if (bullet.isAlive() &&
+                        bullet.getLifetime() > bullet.getLifetimeThreshold() / 2 &&
+                        bullet.getBoundingBox().Intersects(enemy.getBoundingBox()))
                     {
                         enemy.hit(bullet.getDamage());
+                        addSparks(enemy.getPos(), enemy.getVel());
                         bullet.kill();
                         soundManager.enemyHit();
                     }
@@ -248,9 +329,12 @@ namespace ld22
             {
                 foreach (Bullet bullet in enemyBullets)
                 {
-                    if (bullet.getBoundingBox().Intersects(player.getBoundingBox()))
+                    if (bullet.isAlive() &&
+                        bullet.getLifetime() > bullet.getLifetimeThreshold() / 2 &&
+                        bullet.getBoundingBox().Intersects(player.getBoundingBox()))
                     {
                         player.hit(bullet.getDamage());
+                        addSparks(player.getPos(), player.getVel());
                         bullet.kill();
                         soundManager.playerHit();
                     }
@@ -284,6 +368,10 @@ namespace ld22
             {
                 eggs.Remove(e);
             }
+            foreach (Bullet e in removedEffects)
+            {
+                effects.Remove(e);
+            }
 
             // death handling
             if (!player.isAlive())
@@ -306,6 +394,7 @@ namespace ld22
                 {
                     if (deathTimer == deathTimerMax)
                     {
+                        addExplosion(player.getPos(), player.getVel()/5.0f, 0.5f);
                         soundManager.playerDeath();
                         player.decLives();
                         if (player.getLives() < 0)

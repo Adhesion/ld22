@@ -33,6 +33,7 @@ namespace ld22
         protected LevelManager levelManager;
 
         protected Rectangle boundingBox;
+        protected Vector2 boxScale;
 
         protected SpriteEffects effect;
         protected Color col;
@@ -58,6 +59,7 @@ namespace ld22
             scale = 1.0f;
 
             setBoxScale(new Vector2(1.0f, 1.0f));
+            updateBBoxPos();
             boundingBox.X = (int)pos.X;
             boundingBox.Y = (int)pos.Y;
 
@@ -79,8 +81,15 @@ namespace ld22
 
         public void setBoxScale(Vector2 bs)
         {
+            boxScale = bs;
             boundingBox.Width = (int)((float)sprite.Width * bs.X);
             boundingBox.Height = (int)((float)sprite.Height * bs.Y);
+        }
+
+        private void updateBBoxPos()
+        {
+            boundingBox.X = (int)pos.X - (int)(center.X * boxScale.X);
+            boundingBox.Y = (int)pos.Y - (int)(center.Y * boxScale.Y);
         }
 
         public Rectangle getBoundingBox()
@@ -167,6 +176,7 @@ namespace ld22
                 scale,
                 effect,
                 0.0f);
+            //batch.Draw(Game1.instance.boxSprite, getBoundingBox(), Color.White);
         }
 
         public virtual void update(GameTime gameTime)
@@ -175,10 +185,9 @@ namespace ld22
 
             vel *= friction;
 
-            boundingBox.X = (int)pos.X;
-            boundingBox.Y = (int)pos.Y;
+            updateBBoxPos();
 
-            if (firing)
+            if (alive && firing)
             {
                 if (fireCounter == 0)
                 {

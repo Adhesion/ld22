@@ -1,18 +1,16 @@
--sound effects X
--music X
--font
--egg vector
--player death X
--start/exit buttons on level 0 X
--- game over screen X
--explosion effects
--fix bounding boxes
 -fix enemy rotation?
 -health/shield/fire rate pickups?
--increase speeds?
+--bomb?
+-increase speeds? X
+-better interface for hp?
 -enemy spawn tweaks?
+-song tweaks
 -limit movement to camera bounds X
 -360 controls
 -boss death win condition X
--boss/enemy chase
+-boss/enemy chase X
 -portal sprite
+-NG+?
+-remove boxsprite X
+-icons
+-remove writelines

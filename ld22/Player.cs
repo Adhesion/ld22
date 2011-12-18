@@ -14,7 +14,7 @@ namespace ld22
         public Player(Texture2D _sprite, Vector2 _pos, Vector2 _vel, int _hp, LevelManager l) :
             base(_sprite, _pos, _vel, _hp, l)
         {
-            setBoxScale(new Vector2(0.1f, 0.1f));
+            setBoxScale(new Vector2(0.25f, 0.25f));
             fireCounterMax = 10;
             numLives = 3;
         }

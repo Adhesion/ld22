@@ -37,6 +37,8 @@ namespace ld22
         Texture2D eggSprite;
 
         Texture2D arrowSprite;
+        Texture2D sparkSprite;
+        Texture2D explosionSprite;
 
         CharacterManager characterManager;
         InputHandler inputHandler;
@@ -106,6 +108,8 @@ namespace ld22
             eggSprite = Content.Load<Texture2D>("egg");
 
             arrowSprite = Content.Load<Texture2D>("arrow");
+            sparkSprite = Content.Load<Texture2D>("spark");
+            explosionSprite = Content.Load<Texture2D>("explosion");
 
             levelManager = new LevelManager(starTex, backTex, earthTex);
 
@@ -120,6 +124,9 @@ namespace ld22
             characterManager.setBulletSprite(playerBulletSprite);
             characterManager.setEnemySprites(enemySprites);
             characterManager.setEggSprite(eggSprite);
+            characterManager.setArrowSprite(arrowSprite);
+            characterManager.setExplosionSprite(explosionSprite);
+            characterManager.setSparkSprite(sparkSprite);
             characterManager.setLevelManager(levelManager);
 
             cam = new Camera(GraphicsDevice, new Vector2(0.0f, 0.0f), player, levelManager);
@@ -129,15 +136,15 @@ namespace ld22
             levelManager.setSoundManager(soundManager);
             characterManager.setSoundManager(soundManager);
 
-            font = Content.Load<SpriteFont>("Fixedsys");
+            font = Content.Load<SpriteFont>("font");
 
             intro = new string[6];
-            intro[0] = "'This is ground control... your circuit's dead, there's something wrong...'";
+            intro[0] = "This is ground control... your circuit's dead, there's something wrong...\n\n\n";
             intro[1] = "On a routine mission, you stumble into a strange portal and find yourself";
             intro[2] = "-alone-";
             intro[3] = "in a parallel dimension.";
             intro[4] = "Search for the space eggs to survive and find your way home.";
-            intro[5] = "Good luck!";
+            intro[5] = "Good luck !";
 
             end = new string[4];
             end[0] = "In your absence, the earth was destroyed.";
@@ -225,6 +232,12 @@ namespace ld22
             if (levelManager.getCurrentLevel() == 0)
             {
                 mainText = intro;
+                Vector2 pos;
+                string g = "PLANET EARTH IS BLUE";
+                float scale = 3.0f;
+                pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(g).X / 2.0f * scale);
+                pos.Y = 100;
+                spriteBatch.DrawString(font, g, pos, Color.Blue, 0.0f, new Vector2(0.0f, 0.0f), scale, SpriteEffects.None, 0.0f);
             }
             else if (levelManager.getCurrentLevel() == 6)
             {
@@ -233,7 +246,7 @@ namespace ld22
 
             if (mainText != null)
             {
-                Vector2 pos = new Vector2(0.0f, 50.0f);
+                Vector2 pos = new Vector2(0.0f, 400.0f);
 
                 for (int i = 0; i < mainText.Length; i++)
                 {
@@ -242,8 +255,9 @@ namespace ld22
                     {
                         col = Color.Blue;
                     }
-                    pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(mainText[i]).X / 2.0f);
-                    spriteBatch.DrawString(font, mainText[i], pos, col);
+                    float scale = 1.0f;
+                    pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(mainText[i]).X / 2.0f * scale);
+                    spriteBatch.DrawString(font, mainText[i], pos, col, 0.0f, new Vector2(0.0f, 0.0f), scale, SpriteEffects.None, 0.0f);
                     pos.Y += font.MeasureString(mainText[i]).Y * 1.1f;
                 }
             }
@@ -251,9 +265,10 @@ namespace ld22
             {
                 Vector2 pos;
                 string g = "GAME OVER";
-                pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(g).X);
-                pos.Y = (graphics.GraphicsDevice.Viewport.Height / 2.0f) - (font.MeasureString(g).Y);
-                spriteBatch.DrawString(font, g, pos, Color.Red, 0.0f, new Vector2(0.0f, 0.0f), 2.0f, SpriteEffects.None, 0.0f);
+                float scale = 2.0f;
+                pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(g).X / 2.0f * scale);
+                pos.Y = (graphics.GraphicsDevice.Viewport.Height / 2.0f) - (font.MeasureString(g).Y / 2.0f * scale);
+                spriteBatch.DrawString(font, g, pos, Color.Red, 0.0f, new Vector2(0.0f, 0.0f), scale, SpriteEffects.None, 0.0f);
             }
 
             spriteBatch.End();
@@ -263,7 +278,7 @@ namespace ld22
 
         public void setGameOver(bool b)
         {
-            gameOver = false;
+            gameOver = b;
         }
     }
 }

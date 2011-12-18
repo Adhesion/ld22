@@ -15,6 +15,8 @@ namespace ld22
         protected int faceCounterMax;
         protected int type;
 
+        protected bool chase;
+
         protected float destRotation;
 
         float maxVel;
@@ -31,6 +33,8 @@ namespace ld22
 
             setBoxScale(new Vector2(0.9f, 0.9f));
             type = t;
+
+            chase = false;
 
             switch (type)
             {
@@ -85,6 +89,16 @@ namespace ld22
             return type;
         }
 
+        public bool getChase()
+        {
+            return chase;
+        }
+
+        public void setChase(bool c)
+        {
+            chase = c;
+        }
+
         public override void fireBullet()
         {
             characterManager.addBullet(this, Color.OrangeRed, 5);
@@ -117,6 +131,24 @@ namespace ld22
             setRotation(r);
             //rotation = r;
             //destRotation = r;
+
+            if (chase)
+            {
+                float dist = Vector2.Distance(player.getPos(), pos);
+                Vector2 followVel = playerVec / 40.0f * dist / 1000.0f;
+                if (followVel.X > maxVel)
+                {
+                    followVel.X = maxVel;
+                }
+                if (followVel.Y > maxVel)
+                {
+                    followVel.Y = maxVel;
+                }
+                float velX = ((float)Game1.random.NextDouble() * 2 * maxVel) - maxVel;
+                float velY = ((float)Game1.random.NextDouble() * 2 * maxVel) - maxVel;
+                Vector2 randVel = new Vector2(velX, velY);
+                addVel(followVel + randVel);
+            }
         }
 
         public override void setRotation(float r)

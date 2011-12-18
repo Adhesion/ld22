@@ -25,28 +25,28 @@ namespace ld22
                 Vector2 vel = new Vector2(0.0f, 0.0f);
                 if (keyboardState.IsKeyDown(Keys.W))
                 {
-                    vel.Y -= 0.5f;
+                    vel.Y -= 0.65f;
                 }
                 if (keyboardState.IsKeyDown(Keys.S))
                 {
-                    vel.Y += 0.5f;
+                    vel.Y += 0.65f;
                 }
                 if (keyboardState.IsKeyDown(Keys.A))
                 {
-                    vel.X -= 0.5f;
+                    vel.X -= 0.65f;
                 }
                 if (keyboardState.IsKeyDown(Keys.D))
                 {
-                    vel.X += 0.5f;
+                    vel.X += 0.65f;
                 }
 
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
-                    player.rotate(-0.02f);
+                    player.rotate(-0.0225f);
                 }
                 else if (keyboardState.IsKeyDown(Keys.Right))
                 {
-                    player.rotate(0.02f);
+                    player.rotate(0.0225f);
                 }
 
                 vel = Vector2.Transform(vel, Matrix.CreateRotationZ(player.getRotation()));

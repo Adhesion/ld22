@@ -136,12 +136,14 @@ namespace ld22
         public void spawnBoss()
         {
             Vector2 bossPos = new Vector2(0.0f, -500.0f);
-            characterManager.addEnemy(bossPos, 3);
+            Enemy1 e = characterManager.addEnemy(bossPos, 3);
+            e.setChase(true);
             for (int i = 0; i < 35; i++)
             {
-                Vector2 p = bossPos + new Vector2(Game1.random.Next(-100, 101), Game1.random.Next(-100, 101));
+                Vector2 p = bossPos + new Vector2(Game1.random.Next(-200, 201), Game1.random.Next(50, 151));
                 int type = Game1.random.Next(0, 3);
-                characterManager.addEnemy(p, type);
+                Enemy1 e2 = characterManager.addEnemy(p, type);
+                e2.setChase(true);
             }
         }
 
@@ -194,7 +196,7 @@ namespace ld22
                 Character earth = new Character(earthTex, new Vector2(0.0f, -300.0f), new Vector2(0.0f, 0.0f), 1, this);
                 earth.setScale(10.0f);
                 planets.Add(earth);
-                backgrounds.Add(new KeyValuePair<float, List<Character>>(0.4f, planets));
+                backgrounds.Add(new KeyValuePair<float, List<Character>>(0.45f, planets));
             }
         }
 
