@@ -13,12 +13,13 @@ namespace ld22
         protected int aiCounterMax;
         protected int faceCounter;
         protected int faceCounterMax;
+        protected int type;
 
         protected float destRotation;
 
         float maxVel;
 
-        public Enemy1(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l) :
+        public Enemy1(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l, int t) :
             base(s, p, v, _hp, l)
         {
             fireCounterMax = 30;
@@ -29,12 +30,34 @@ namespace ld22
             maxVel = 4.0f;
 
             setBoxScale(new Vector2(0.9f, 0.9f));
+            type = t;
+
+            switch (type)
+            {
+                case 0:
+                    fireCounterMax = 30;
+                    hp = 30;
+                    break;
+                case 1:
+                    fireCounterMax = 20;
+                    hp = 40;
+                    break;
+                case 2:
+                    fireCounterMax = 15;
+                    hp = 60;
+                    break;
+                case 3:
+                    fireCounterMax = 10;
+                    hp = 100;
+                    scale = 3.0f;
+                    setBoxScale(new Vector2(1.5f, 1.5f));
+                    break;
+            }
         }
 
         public override void update(Microsoft.Xna.Framework.GameTime gameTime)
         {
             base.update(gameTime);
-
             if (characterManager.getCam().isOnCamera(pos))
             {
                 if (aiCounter == 0)
@@ -57,9 +80,14 @@ namespace ld22
             }
         }
 
+        public override int getType()
+        {
+            return type;
+        }
+
         public override void fireBullet()
         {
-            characterManager.addBullet(this, Color.OrangeRed, 10);
+            characterManager.addBullet(this, Color.OrangeRed, 5);
         }
 
         protected virtual void runAI()

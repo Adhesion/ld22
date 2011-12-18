@@ -19,25 +19,41 @@ namespace ld22
     public class Game1 : Microsoft.Xna.Framework.Game
     {
         public static Random random = new Random();
+        public static Game1 instance;
 
         public static GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
         Player player;
+
         Texture2D playerSprite;
-        Texture2D enemy1Sprite;
         Texture2D playerBulletSprite;
+
         Texture2D[] starTex;
         Texture2D[] backTex;
+        Texture2D earthTex;
+
+        Texture2D[] enemySprites;
+        Texture2D eggSprite;
+
+        Texture2D arrowSprite;
 
         CharacterManager characterManager;
         InputHandler inputHandler;
         LevelManager levelManager;
+        SoundManager soundManager;
 
         Camera cam;
 
+        SpriteFont font;
+
+        string[] intro;
+        string[] end;
+        bool gameOver;
+
         public Game1()
         {
+            instance = this;
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
@@ -66,7 +82,6 @@ namespace ld22
 
             // load sprites and such
             playerSprite = Content.Load<Texture2D>("playership");
-            enemy1Sprite = Content.Load<Texture2D>("enemy1");
             playerBulletSprite = Content.Load<Texture2D>("playerbullet");
 
             starTex = new Texture2D[3];
@@ -80,10 +95,22 @@ namespace ld22
             backTex[2] = Content.Load<Texture2D>("background3");
             backTex[3] = Content.Load<Texture2D>("background4");
 
-            levelManager = new LevelManager(starTex, backTex);
+            earthTex = Content.Load<Texture2D>("earth");
+
+            enemySprites = new Texture2D[4];
+            enemySprites[0] = Content.Load<Texture2D>("enemy1");
+            enemySprites[1] = Content.Load<Texture2D>("enemy2");
+            enemySprites[2] = Content.Load<Texture2D>("enemy3");
+            enemySprites[3] = Content.Load<Texture2D>("boss");
+
+            eggSprite = Content.Load<Texture2D>("egg");
+
+            arrowSprite = Content.Load<Texture2D>("arrow");
+
+            levelManager = new LevelManager(starTex, backTex, earthTex);
 
             player = new Player(playerSprite, new Vector2(0.0f, 0.0f),
-                new Vector2(0.0f, 0.0f), 100, levelManager);
+                new Vector2(0.0f, 0.0f), 200, levelManager);
             characterManager = new CharacterManager(player);
             inputHandler = new InputHandler(player);
 
@@ -91,18 +118,36 @@ namespace ld22
             levelManager.setCharacterManager(characterManager);
 
             characterManager.setBulletSprite(playerBulletSprite);
-            characterManager.setEnemySprite(enemy1Sprite);
+            characterManager.setEnemySprites(enemySprites);
+            characterManager.setEggSprite(eggSprite);
             characterManager.setLevelManager(levelManager);
 
             cam = new Camera(GraphicsDevice, new Vector2(0.0f, 0.0f), player, levelManager);
             characterManager.setCam(cam);
 
-            //for (int i = 0; i < 20; i++)
-            //{
-            //    characterManager.addEnemy();
-            //}
+            soundManager = new SoundManager(Content);
+            levelManager.setSoundManager(soundManager);
+            characterManager.setSoundManager(soundManager);
 
-            levelManager.initLevel(1);
+            font = Content.Load<SpriteFont>("Fixedsys");
+
+            intro = new string[6];
+            intro[0] = "'This is ground control... your circuit's dead, there's something wrong...'";
+            intro[1] = "On a routine mission, you stumble into a strange portal and find yourself";
+            intro[2] = "-alone-";
+            intro[3] = "in a parallel dimension.";
+            intro[4] = "Search for the space eggs to survive and find your way home.";
+            intro[5] = "Good luck!";
+
+            end = new string[4];
+            end[0] = "In your absence, the earth was destroyed.";
+            end[1] = "You are now";
+            end[2] = "-alone-";
+            end[3] = "\n\nTHE END";
+
+            gameOver = false;
+
+            levelManager.initLevel(0);
         }
 
         /// <summary>
@@ -112,6 +157,7 @@ namespace ld22
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            soundManager.stop();
         }
 
         /// <summary>
@@ -157,12 +203,67 @@ namespace ld22
 
             cam.setZoom(oldZoom);
 
-            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred,
+            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.SaveState, cam.getTransform());
             characterManager.render(spriteBatch);
             spriteBatch.End();
 
+            spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
+                SaveStateMode.SaveState, Matrix.Identity);
+            spriteBatch.GraphicsDevice.SamplerStates[0].MagFilter = TextureFilter.Point;
+            spriteBatch.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
+            spriteBatch.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
+            string health = "HP: " + player.getHP();
+            string lives =  "Lives: " + player.getLives();
+            spriteBatch.DrawString(font, health, new Vector2(0, 0), Color.Yellow);
+            if (player.getLives() >= 0)
+            {
+                spriteBatch.DrawString(font, lives, new Vector2(0, font.MeasureString(health).Y), Color.Yellow);
+            }
+
+            string[] mainText = null;
+            if (levelManager.getCurrentLevel() == 0)
+            {
+                mainText = intro;
+            }
+            else if (levelManager.getCurrentLevel() == 6)
+            {
+                mainText = end;
+            }
+
+            if (mainText != null)
+            {
+                Vector2 pos = new Vector2(0.0f, 50.0f);
+
+                for (int i = 0; i < mainText.Length; i++)
+                {
+                    Color col = Color.Yellow;
+                    if (mainText[i].CompareTo("-alone-") == 0)
+                    {
+                        col = Color.Blue;
+                    }
+                    pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(mainText[i]).X / 2.0f);
+                    spriteBatch.DrawString(font, mainText[i], pos, col);
+                    pos.Y += font.MeasureString(mainText[i]).Y * 1.1f;
+                }
+            }
+            if (gameOver)
+            {
+                Vector2 pos;
+                string g = "GAME OVER";
+                pos.X = (graphics.GraphicsDevice.Viewport.Width / 2.0f) - (font.MeasureString(g).X);
+                pos.Y = (graphics.GraphicsDevice.Viewport.Height / 2.0f) - (font.MeasureString(g).Y);
+                spriteBatch.DrawString(font, g, pos, Color.Red, 0.0f, new Vector2(0.0f, 0.0f), 2.0f, SpriteEffects.None, 0.0f);
+            }
+
+            spriteBatch.End();
+
             base.Draw(gameTime);
+        }
+
+        public void setGameOver(bool b)
+        {
+            gameOver = false;
         }
     }
 }

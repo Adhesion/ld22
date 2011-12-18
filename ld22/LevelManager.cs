@@ -15,12 +15,14 @@ namespace ld22
 
         Texture2D[] starTex;
         Texture2D[] backTex;
+        Texture2D earthTex;
 
         CharacterManager characterManager;
+        SoundManager soundManager;
 
         protected IDictionary<float, List<Character>> backgrounds;
 
-        public LevelManager(Texture2D[] _starTex, Texture2D[] _backTex )
+        public LevelManager(Texture2D[] _starTex, Texture2D[] _backTex, Texture2D _earthTex )
         {
             backgrounds = new Dictionary<float, List<Character>>();
             currentLevelArea = new Rectangle(-500, -500, 1000, 1000);
@@ -28,6 +30,7 @@ namespace ld22
 
             starTex = _starTex;
             backTex = _backTex;
+            earthTex = _earthTex;
         }
 
         public void setCharacterManager(CharacterManager c)
@@ -35,28 +38,57 @@ namespace ld22
             characterManager = c;
         }
 
+        public void setSoundManager(SoundManager s)
+        {
+            soundManager = s;
+        }
+
         public Rectangle getCurrentLevelArea()
         {
             return currentLevelArea;
         }
 
+        public int getCurrentLevel()
+        {
+            return currentLevel;
+        }
+
         public void initLevel(int level)
         {
+            Game1.instance.setGameOver(false);
+            characterManager.getPlayer().setPos(new Vector2(0.0f, 0.0f));
+            characterManager.getCam().setPos(new Vector2(0.0f, 0.0f));
             characterManager.clear();
             Console.WriteLine("Init level " + level);
             currentLevel = level;
 
-            if (currentLevel >= 1 && currentLevel <= 4)
+            if (currentLevel == 0)
+            {
+                levelSize = 1000;
+                currentLevelArea = new Rectangle(-levelSize / 2, -levelSize / 2, levelSize, levelSize);
+                characterManager.addEgg(new Vector2(0.0f, -100.0f));
+            }
+            else if (currentLevel >= 1 && currentLevel <= 4)
             {
                 levelSize = 2500 + (currentLevel * 400);
                 currentLevelArea = new Rectangle(-levelSize / 2, -levelSize / 2, levelSize, levelSize);
-                spawnEnemies();
+                spawnEnemiesAndEggs();
+            }
+            else if (currentLevel >= 5)
+            {
+                levelSize = 1500;
+                currentLevelArea = new Rectangle(-levelSize / 2, -levelSize / 2, levelSize, levelSize);
+                if (currentLevel == 5)
+                {
+                    spawnBoss();
+                }
             }
 
             makeBackground();
+            soundManager.setLevel(currentLevel);
         }
 
-        public void spawnEnemies()
+        public void spawnEnemiesAndEggs()
         {
             int numEggs = currentLevel + 5;
             for (int i = 0; i < numEggs; i++)
@@ -83,15 +115,33 @@ namespace ld22
                     foreach (Character e in eggs)
                     {
                         float dist = Vector2.Distance(e.getPos(), p);
-                        prob += (100.0f / dist);
+                        prob += (80.0f / dist);
                         //Console.WriteLine("at " + x + ", " + y + ", dist is " + dist + ", prob is " + prob);
                         if (prob > 1.0f)
                         {
-                            characterManager.addEnemy(p);
+                            int type = 0;
+                            double typeP = Game1.random.NextDouble();
+                            if (typeP > (0.8f - (0.1f * currentLevel)))
+                                type = 2;
+                            else if (typeP > (0.6f - (0.1f * currentLevel)))
+                                type = 1;
+                            characterManager.addEnemy(p, type);
                         }
                     }
                 }
                 y = (-levelSize / 2) - 200;
+            }
+        }
+
+        public void spawnBoss()
+        {
+            Vector2 bossPos = new Vector2(0.0f, -500.0f);
+            characterManager.addEnemy(bossPos, 3);
+            for (int i = 0; i < 35; i++)
+            {
+                Vector2 p = bossPos + new Vector2(Game1.random.Next(-100, 101), Game1.random.Next(-100, 101));
+                int type = Game1.random.Next(0, 3);
+                characterManager.addEnemy(p, type);
             }
         }
 
@@ -137,9 +187,14 @@ namespace ld22
                 backgrounds.Add(new KeyValuePair<float, List<Character>>(0.75f, back2));
             }
 
-            if (currentLevel == 5)
+            if (currentLevel >= 5)
             {
                 // add earth/moon
+                List<Character> planets = new List<Character>();
+                Character earth = new Character(earthTex, new Vector2(0.0f, -300.0f), new Vector2(0.0f, 0.0f), 1, this);
+                earth.setScale(10.0f);
+                planets.Add(earth);
+                backgrounds.Add(new KeyValuePair<float, List<Character>>(0.4f, planets));
             }
         }
 
@@ -163,16 +218,20 @@ namespace ld22
         public bool checkWinCondition()
         {
             bool ret = false;
-            if (currentLevel >= 1 && currentLevel <= 4)
+            if (currentLevel >= 0 && currentLevel <= 4)
             {
                 ret = (characterManager.getEggNum() == 0);
+            }
+            else if (currentLevel == 5)
+            {
+                ret = (characterManager.getEnemyNum() == 0);
             }
             return ret;
         }
 
         public void update(GameTime gameTime)
         {
-            if (checkWinCondition() && currentLevel < 5)
+            if (checkWinCondition())
             {
                 initLevel(++currentLevel);
             }

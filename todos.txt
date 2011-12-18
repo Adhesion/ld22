@@ -1,6 +1,18 @@
--sound effects & music
+-sound effects X
+-music X
 -font
--start/exit buttons on level 0
+-egg vector
+-player death X
+-start/exit buttons on level 0 X
+-- game over screen X
 -explosion effects
--health/shield/fire rate pickups
+-fix bounding boxes
+-fix enemy rotation?
+-health/shield/fire rate pickups?
+-increase speeds?
+-enemy spawn tweaks?
 -limit movement to camera bounds X
+-360 controls
+-boss death win condition X
+-boss/enemy chase
+-portal sprite

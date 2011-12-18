@@ -17,9 +17,12 @@ namespace ld22
 
         protected float rotation;
 
+        protected float scale;
+
         protected float friction;
 
         protected int hp;
+        protected int hpMax;
         protected bool alive;
 
         protected bool firing;
@@ -45,11 +48,14 @@ namespace ld22
             center = new Vector2(sprite.Width / 2.0f, sprite.Height / 2.0f);
 
             hp = _hp;
+            hpMax = hp;
             alive = true;
 
             firing = false;
             fireCounter = 0;
             fireCounterMax = 15;
+
+            scale = 1.0f;
 
             setBoxScale(new Vector2(1.0f, 1.0f));
             boundingBox.X = (int)pos.X;
@@ -117,15 +123,48 @@ namespace ld22
             return pos;
         }
 
+        public void setPos(Vector2 p)
+        {
+            pos = p;
+        }
+
+        public void setScale(float s)
+        {
+            scale = s;
+        }
+
+        public int getHP()
+        {
+            return hp;
+        }
+
+        public void incHP(int _hp)
+        {
+            hp += _hp;
+            if (hp > hpMax)
+            {
+                hp = hpMax;
+            }
+        }
+
+        //overridden by enemy
+        public virtual int getType()
+        {
+            return 0;
+        }
+
         public virtual void render(SpriteBatch batch)
         {
+            batch.GraphicsDevice.SamplerStates[0].MagFilter = TextureFilter.Point;
+            batch.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
+            batch.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
             batch.Draw(sprite,
                 pos,
                 null,
                 col,
                 rotation,
                 center,
-                1.0f,
+                scale,
                 effect,
                 0.0f);
         }
@@ -171,6 +210,12 @@ namespace ld22
             return alive;
         }
 
+        public void revive()
+        {
+            alive = true;
+            hp = hpMax;
+        }
+
         public void kill()
         {
             alive = false;
@@ -179,11 +224,11 @@ namespace ld22
         public void hit(int damage)
         {
             hp -= damage;
-            //Console.WriteLine("Character hit hp now " + hp);
+            Console.WriteLine("Character hit hp now " + hp);
             if (hp <= 0)
             {
                 alive = false;
-                //Console.WriteLine("Character dead");
+                Console.WriteLine("Character dead");
             }
         }
 

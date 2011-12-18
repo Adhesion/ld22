@@ -47,6 +47,11 @@ namespace ld22
             pos += m;
         }
 
+        public void setPos(Vector2 p)
+        {
+            pos = p;
+        }
+
         public void update(GameTime gameTime)
         {
             move(player.getPos() - pos);
