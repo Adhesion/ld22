@@ -19,7 +19,9 @@ namespace ld22
 
         protected float destRotation;
 
-        float maxVel;
+        protected float maxVel;
+        protected Color bulletColor;
+        protected int bulletDamage;
 
         public Enemy1(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l, int t) :
             base(s, p, v, _hp, l)
@@ -35,26 +37,32 @@ namespace ld22
             type = t;
 
             chase = false;
+            bulletDamage = type + 4;
 
             switch (type)
             {
                 case 0:
                     fireCounterMax = 30;
                     hp = 30;
+                    bulletColor = Color.OrangeRed;
                     break;
                 case 1:
                     fireCounterMax = 20;
                     hp = 40;
+                    bulletColor = Color.OrangeRed;
                     break;
                 case 2:
-                    fireCounterMax = 15;
+                    fireCounterMax = 12;
                     hp = 60;
+                    bulletColor = Color.OrangeRed;
                     break;
                 case 3:
                     fireCounterMax = 10;
                     hp = 100;
                     scale = 3.0f;
                     setBoxScale(new Vector2(1.5f, 1.5f));
+                    maxVel = 3.0f;
+                    bulletColor = Color.White;
                     break;
             }
         }
@@ -71,6 +79,15 @@ namespace ld22
                 if (faceCounter == 0)
                 {
                     facePlayer();
+                }
+
+                if (destRotation < 0)
+                {
+                    destRotation += (float)Math.PI * 2.0f;
+                }
+                if (destRotation > (float)Math.PI * 2.0f)
+                {
+                    destRotation -= (float)Math.PI * 2.0f;
                 }
 
                 aiCounter = (aiCounter + 1) % aiCounterMax;
@@ -101,7 +118,7 @@ namespace ld22
 
         public override void fireBullet()
         {
-            characterManager.addBullet(this, Color.OrangeRed, 5);
+            characterManager.addBullet(this, bulletColor, bulletDamage);
         }
 
         protected virtual void runAI()
@@ -120,7 +137,7 @@ namespace ld22
         {
             float r;
             Player player = characterManager.getPlayer();
-            Vector2 playerVec = (player.getPos() - pos) + (player.getVel() * 60.0f);
+            Vector2 playerVec = (player.getPos() - pos) + (player.getVel() * 70.0f);
             r = (float)Math.Atan((double)(playerVec.Y / playerVec.X)) + (float)Math.PI / 2;
             if (playerVec.X < -0.01f)
                 r = (float)Math.PI + r;

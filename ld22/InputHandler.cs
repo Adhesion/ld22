@@ -19,39 +19,75 @@ namespace ld22
         public void update(GameTime gameTime)
         {
             KeyboardState keyboardState = Keyboard.GetState();
+            GamePadState gamePadState = GamePad.GetState(PlayerIndex.One);
+            if (gamePadState.Buttons.Back == ButtonState.Pressed ||
+                keyboardState.IsKeyDown(Keys.Escape))
+            {
+                Game1.instance.Exit();
+            }
 
             if (player.isAlive())
             {
                 Vector2 vel = new Vector2(0.0f, 0.0f);
+                float inVel = 0.65f;
                 if (keyboardState.IsKeyDown(Keys.W))
                 {
-                    vel.Y -= 0.65f;
+                    vel.Y -= inVel;
                 }
                 if (keyboardState.IsKeyDown(Keys.S))
                 {
-                    vel.Y += 0.65f;
+                    vel.Y += inVel;
                 }
                 if (keyboardState.IsKeyDown(Keys.A))
                 {
-                    vel.X -= 0.65f;
+                    vel.X -= inVel;
                 }
                 if (keyboardState.IsKeyDown(Keys.D))
                 {
-                    vel.X += 0.65f;
+                    vel.X += inVel;
                 }
 
+                if (gamePadState.ThumbSticks.Left.X > 0.1f ||
+                    gamePadState.ThumbSticks.Left.X < -0.1f)
+                {
+                    vel.X += inVel * gamePadState.ThumbSticks.Left.X;
+                }
+                if (gamePadState.ThumbSticks.Left.Y > 0.1f ||
+                    gamePadState.ThumbSticks.Left.Y < -0.1f)
+                {
+                    vel.Y += inVel * -gamePadState.ThumbSticks.Left.Y;
+                }
+
+                float rotVal = 0.0225f;
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
-                    player.rotate(-0.0225f);
+                    player.rotate(-rotVal);
                 }
                 else if (keyboardState.IsKeyDown(Keys.Right))
                 {
-                    player.rotate(0.0225f);
+                    player.rotate(rotVal);
+                }
+
+                rotVal = 0.025f;
+                if (gamePadState.ThumbSticks.Right.X > 0.1f ||
+                    gamePadState.ThumbSticks.Right.X < -0.1f)
+                {
+                    player.rotate(rotVal * gamePadState.ThumbSticks.Right.X);
+                }
+                if (gamePadState.ThumbSticks.Right.Y > 0.1f ||
+                    gamePadState.ThumbSticks.Right.Y < -0.1f)
+                {
+                    player.rotate(-rotVal * gamePadState.ThumbSticks.Right.Y);
                 }
 
                 vel = Vector2.Transform(vel, Matrix.CreateRotationZ(player.getRotation()));
                 player.addVel(vel);
-                player.setFiring(keyboardState.IsKeyDown(Keys.Space));
+                player.setFiring(keyboardState.IsKeyDown(Keys.Space) ||
+                    (gamePadState.Triggers.Right > 0.01f));
+                if (keyboardState.IsKeyDown(Keys.LeftControl) || gamePadState.Triggers.Left > 0.1f)
+                {
+                    player.fireBomb();
+                }
             }
         }
     }

@@ -27,7 +27,7 @@ namespace ld22
             screenPos.Y = graphics.Viewport.Height / 2;
             pos = _pos;
             player = _player;
-            zoom = 0.85f;
+            zoom = 0.9f;
             levelManager = _levelManager;
         }
 

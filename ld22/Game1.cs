@@ -20,6 +20,7 @@ namespace ld22
     {
         public static Random random = new Random();
         public static Game1 instance;
+        public static int points;
 
         public static GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -35,6 +36,10 @@ namespace ld22
 
         Texture2D[] enemySprites;
         Texture2D eggSprite;
+        Texture2D hollowEggSprite;
+        Texture2D portalSprite;
+
+        Texture2D HPBoxSprite;
 
         Texture2D arrowSprite;
         Texture2D sparkSprite;
@@ -106,6 +111,10 @@ namespace ld22
             enemySprites[3] = Content.Load<Texture2D>("boss");
 
             eggSprite = Content.Load<Texture2D>("egg");
+            hollowEggSprite = Content.Load<Texture2D>("hollowegg");
+            portalSprite = Content.Load<Texture2D>("portal");
+
+            HPBoxSprite = Content.Load<Texture2D>("hpbox");
 
             arrowSprite = Content.Load<Texture2D>("arrow");
             sparkSprite = Content.Load<Texture2D>("spark");
@@ -124,6 +133,7 @@ namespace ld22
             characterManager.setBulletSprite(playerBulletSprite);
             characterManager.setEnemySprites(enemySprites);
             characterManager.setEggSprite(eggSprite);
+            characterManager.setPortalSprite(portalSprite);
             characterManager.setArrowSprite(arrowSprite);
             characterManager.setExplosionSprite(explosionSprite);
             characterManager.setSparkSprite(sparkSprite);
@@ -155,6 +165,7 @@ namespace ld22
             gameOver = false;
 
             levelManager.initLevel(0);
+            Game1.points = 0;
         }
 
         /// <summary>
@@ -215,18 +226,69 @@ namespace ld22
             characterManager.render(spriteBatch);
             spriteBatch.End();
 
+            drawHud();
+
+            base.Draw(gameTime);
+        }
+
+        public void setGameOver(bool b)
+        {
+            gameOver = b;
+            if (b)
+                Game1.points = 0;
+        }
+
+        public void drawHud()
+        {
             spriteBatch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.SaveState, Matrix.Identity);
             spriteBatch.GraphicsDevice.SamplerStates[0].MagFilter = TextureFilter.Point;
             spriteBatch.GraphicsDevice.SamplerStates[0].MinFilter = TextureFilter.Point;
             spriteBatch.GraphicsDevice.SamplerStates[0].MipFilter = TextureFilter.Point;
-            string health = "HP: " + player.getHP();
-            string lives =  "Lives: " + player.getLives();
-            spriteBatch.DrawString(font, health, new Vector2(0, 0), Color.Yellow);
+
+            Vector2 upPos = new Vector2(10, 10);
+            for (int i = 0; i < player.getHP()/10; i++)
+            {
+                spriteBatch.Draw(HPBoxSprite, upPos, Color.White);
+                upPos.X += 10;
+            }
+
+            upPos.Y += 10;
+            upPos.X = 0;
+
+            Color playerC = Color.White;
+            if (player.getBombCooldown() > 0)
+            {
+                playerC = Color.Black;
+            }
+            spriteBatch.Draw(playerSprite, upPos, playerC);
+            upPos.X += playerSprite.Width;
+
+            string lives = " x" + player.getLives();
+            //spriteBatch.DrawString(font, health, new Vector2(0, 0), Color.Yellow);
             if (player.getLives() >= 0)
             {
-                spriteBatch.DrawString(font, lives, new Vector2(0, font.MeasureString(health).Y), Color.Yellow);
+                spriteBatch.DrawString(font, lives, upPos, Color.Yellow);
             }
+
+            float eggSize = hollowEggSprite.Width + 5;
+            upPos = new Vector2(graphics.GraphicsDevice.Viewport.Width - eggSize,
+                graphics.GraphicsDevice.Viewport.Height - eggSize);
+            for (int i = 0; i < characterManager.getEggNum(); i++)
+            {
+                spriteBatch.Draw(hollowEggSprite, upPos, Color.White);
+                upPos.X -= eggSize;
+            }
+            for (int i = 0; i < player.getEggs(); i++)
+            {
+                spriteBatch.Draw(eggSprite, upPos, Color.White);
+                upPos.X -= eggSize;
+            }
+
+            string pointString = "" + points;
+            upPos = new Vector2(graphics.GraphicsDevice.Viewport.Width - (font.MeasureString(pointString).X) - 10,
+                (font.MeasureString(pointString).Y / 2.0f));
+            spriteBatch.DrawString(font, pointString, upPos, Color.Yellow);
 
             string[] mainText = null;
             if (levelManager.getCurrentLevel() == 0)
@@ -272,13 +334,6 @@ namespace ld22
             }
 
             spriteBatch.End();
-
-            base.Draw(gameTime);
-        }
-
-        public void setGameOver(bool b)
-        {
-            gameOver = b;
         }
     }
 }

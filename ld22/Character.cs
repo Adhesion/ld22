@@ -187,6 +187,15 @@ namespace ld22
 
             updateBBoxPos();
 
+            if (rotation < 0)
+            {
+                rotation += (float)Math.PI * 2.0f;
+            }
+            if (rotation > (float)Math.PI * 2.0f)
+            {
+                rotation -= (float)Math.PI * 2.0f;
+            }
+
             if (alive && firing)
             {
                 if (fireCounter == 0)
@@ -233,11 +242,9 @@ namespace ld22
         public void hit(int damage)
         {
             hp -= damage;
-            Console.WriteLine("Character hit hp now " + hp);
             if (hp <= 0)
             {
                 alive = false;
-                Console.WriteLine("Character dead");
             }
         }
 

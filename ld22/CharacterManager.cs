@@ -25,6 +25,7 @@ namespace ld22
         protected Texture2D bulletSprite;
         protected Texture2D[] enemySprites;
         protected Texture2D eggSprite;
+        protected Texture2D portalSprite;
         protected Texture2D arrowSprite;
         protected Texture2D sparkSprite;
         protected Texture2D explosionSprite;
@@ -36,6 +37,9 @@ namespace ld22
 
         protected int deathTimer;
         protected int deathTimerMax;
+
+        protected int bombCounter;
+        protected int bombCounterMax;
 
         public CharacterManager(Player p)
         {
@@ -55,6 +59,8 @@ namespace ld22
 
             deathTimerMax = 180;
             deathTimer = deathTimerMax;
+            bombCounter = 0;
+            bombCounterMax = 4;
         }
 
         public void setBulletSprite(Texture2D sprite)
@@ -70,6 +76,11 @@ namespace ld22
         public void setEggSprite(Texture2D sprite)
         {
             eggSprite = sprite;
+        }
+
+        public void setPortalSprite(Texture2D sprite)
+        {
+            portalSprite = sprite;
         }
 
         public void setArrowSprite(Texture2D sprite)
@@ -114,6 +125,8 @@ namespace ld22
 
         public void render(SpriteBatch batch)
         {
+            bombCounter = (bombCounter + 1) % bombCounterMax;
+
             foreach(Character c in enemies)
             {
                 c.render(batch);
@@ -202,6 +215,15 @@ namespace ld22
             l.Add(b);
         }
 
+        public void addBomb(Character c, Color col, int damage)
+        {
+            Bullet b = new Bullet(explosionSprite, c.getPos(), new Vector2(0.0f, 0.0f), 1, levelManager, col, damage);
+            b.setGrow(true, 0.13f);
+            b.setStay(true);
+            playerBullets.Add(b);
+            soundManager.playerDeath();
+        }
+
         public void addSparks(Vector2 p, Vector2 vel)
         {
             int num = Game1.random.Next(0, 6);
@@ -215,11 +237,11 @@ namespace ld22
             }
         }
 
-        public void addExplosion(Vector2 p, Vector2 vel, float scale)
+        public void addExplosion(Vector2 p, Vector2 vel, float scale, Color col)
         {
-            Bullet s = new Bullet(explosionSprite, p, vel, 1, levelManager, Color.White, 0);
+            Bullet s = new Bullet(explosionSprite, p, vel, 1, levelManager, col, 0);
             s.setScale(scale);
-            s.setGrow(true);
+            s.setGrow(true, 0.06f);
             effects.Add(s);
         }
 
@@ -234,7 +256,17 @@ namespace ld22
 
         public void addEgg(Vector2 pos)
         {
-            Character e = new Character(eggSprite, pos, new Vector2(0.0f, 0.0f), 1, levelManager);
+            Character e;
+            if (levelManager.getCurrentLevel() == 0 || levelManager.getCurrentLevel() == 6)
+            {
+                e = new Character(portalSprite, pos, new Vector2(0.0f, 0.0f), 1, levelManager);
+                e.setScale(2.5f);
+            }
+            else
+            {
+                e = new Character(eggSprite, pos, new Vector2(0.0f, 0.0f), 1, levelManager);
+            }
+            
             eggs.Add(e);
         }
 
@@ -264,13 +296,15 @@ namespace ld22
                     removedEnemies.Add(enemy);
                     if (enemy.getType() == 3)
                     {
-                        addExplosion(enemy.getPos(), enemy.getVel()/5.0f, 0.5f);
+                        addExplosion(enemy.getPos(), enemy.getVel()/5.0f, 4.0f, Color.OrangeRed);
                         soundManager.bossDeath();
+                        Game1.points += 1000;
                     }
                     else
                     {
-                        addExplosion(enemy.getPos(), enemy.getVel()/5.0f, 1.0f);
+                        addExplosion(enemy.getPos(), enemy.getVel()/5.0f, 0.7f, Color.White);
                         soundManager.enemyDeath();
+                        Game1.points += 250 + (enemy.getType() * 50);
                     }
                 }
             }
@@ -293,6 +327,7 @@ namespace ld22
             foreach (Character egg in eggs)
             {
                 egg.update(gameTime);
+                egg.rotate(-0.001f);
                 if (!egg.isAlive())
                 {
                     removedEggs.Add(egg);
@@ -316,10 +351,15 @@ namespace ld22
                         bullet.getLifetime() > bullet.getLifetimeThreshold() / 2 &&
                         bullet.getBoundingBox().Intersects(enemy.getBoundingBox()))
                     {
-                        enemy.hit(bullet.getDamage());
-                        addSparks(enemy.getPos(), enemy.getVel());
-                        bullet.kill();
-                        soundManager.enemyHit();
+                        // check stay, so we only check bombs every bombCounter frames
+                        if (!bullet.isStay() || bombCounter == 0)
+                        {
+                            enemy.hit(bullet.getDamage());
+                            addSparks(enemy.getPos(), enemy.getVel());
+                            if (!bullet.isStay())
+                                bullet.kill();
+                            soundManager.enemyHit();
+                        }
                     }
                 }
             }
@@ -347,8 +387,10 @@ namespace ld22
                 if (egg.isAlive() && egg.getBoundingBox().Intersects(player.getBoundingBox()))
                 {
                     egg.kill();
-                    player.incHP(50);
+                    player.incHP(40);
+                    player.incEggs();
                     soundManager.egg();
+                    Game1.points += 250;
                 }
             }
 
@@ -394,7 +436,7 @@ namespace ld22
                 {
                     if (deathTimer == deathTimerMax)
                     {
-                        addExplosion(player.getPos(), player.getVel()/5.0f, 0.5f);
+                        addExplosion(player.getPos(), player.getVel()/5.0f, 0.5f, Color.Yellow);
                         soundManager.playerDeath();
                         player.decLives();
                         if (player.getLives() < 0)

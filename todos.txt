@@ -1,16 +1,17 @@
--fix enemy rotation?
+-fix enemy rotation? X
 -health/shield/fire rate pickups?
---bomb?
+--bomb? X
 -increase speeds? X
--better interface for hp?
--enemy spawn tweaks?
+-better interface for hp? X
+-enemy spawn tweaks? X
 -song tweaks
 -limit movement to camera bounds X
--360 controls
+-360 controls, exit key X
 -boss death win condition X
 -boss/enemy chase X
--portal sprite
--NG+?
+-portal sprite X
 -remove boxsprite X
--icons
--remove writelines
+-icons X
+-remove writelines X
+-NG+?
+-app name?

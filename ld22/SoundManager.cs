@@ -69,48 +69,49 @@ namespace ld22
         public void playerFire()
         {
             SoundEffectInstance i = playerFireS.Play();
-            i.Volume = 0.3f;
+            i.Volume = 0.1f;
         }
 
         public void enemyFire()
         {
             SoundEffectInstance i = enemyFireS.Play();
-            i.Volume = 0.2f;
+            i.Volume = 0.1f;
         }
 
         public void playerHit()
         {
             SoundEffectInstance i = playerHitS.Play();
-            i.Volume = 0.45f;
+            i.Volume = 0.35f;
         }
 
         public void enemyHit()
         {
             SoundEffectInstance i = enemyHitS.Play();
-            i.Volume = 0.25f;
+            i.Volume = 0.1f;
         }
 
         public void playerDeath()
         {
             SoundEffectInstance i = playerDeathS.Play();
+            i.Volume = 0.5f;
         }
 
         public void enemyDeath()
         {
             SoundEffectInstance i = enemyDeathS.Play();
-            i.Volume = 0.5f;
+            i.Volume = 0.15f;
         }
 
         public void bossDeath()
         {
             SoundEffectInstance i = bossDeathS.Play();
-            i.Volume = 0.6f;
+            i.Volume = 0.4f;
         }
 
         public void egg()
         {
             SoundEffectInstance i = eggS.Play();
-            i.Volume = 0.35f;
+            i.Volume = 0.25f;
         }
     }
 }

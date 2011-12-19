@@ -56,17 +56,21 @@ namespace ld22
         public void initLevel(int level)
         {
             Game1.instance.setGameOver(false);
-            characterManager.getPlayer().setPos(new Vector2(0.0f, 0.0f));
-            characterManager.getCam().setPos(new Vector2(0.0f, 0.0f));
+            if (level < 6)
+            {
+                characterManager.getPlayer().setPos(new Vector2(0.0f, 0.0f));
+                characterManager.getPlayer().setRotation(0.0f);
+                characterManager.getCam().setPos(new Vector2(0.0f, 0.0f));
+            }
             characterManager.clear();
-            Console.WriteLine("Init level " + level);
             currentLevel = level;
+            characterManager.getPlayer().resetEggs();
 
             if (currentLevel == 0)
             {
                 levelSize = 1000;
                 currentLevelArea = new Rectangle(-levelSize / 2, -levelSize / 2, levelSize, levelSize);
-                characterManager.addEgg(new Vector2(0.0f, -100.0f));
+                characterManager.addEgg(new Vector2(0.0f, -300.0f));
             }
             else if (currentLevel >= 1 && currentLevel <= 4)
             {
@@ -82,6 +86,11 @@ namespace ld22
                 {
                     spawnBoss();
                 }
+            }
+            else if (currentLevel == 6)
+            {
+                levelSize = 10000;
+                currentLevelArea = new Rectangle(-levelSize / 2, -levelSize / 2, levelSize, levelSize);
             }
 
             makeBackground();
@@ -100,7 +109,6 @@ namespace ld22
                 if (Game1.random.NextDouble() < 0.5)
                     ey *= -1;
                 characterManager.addEgg(new Vector2(ex, ey));
-                Console.WriteLine("spawned egg at " + ex + ", " + ey);
             }
 
             int x = (-levelSize / 2) + 200;
@@ -119,17 +127,40 @@ namespace ld22
                         //Console.WriteLine("at " + x + ", " + y + ", dist is " + dist + ", prob is " + prob);
                         if (prob > 1.0f)
                         {
-                            int type = 0;
-                            double typeP = Game1.random.NextDouble();
-                            if (typeP > (0.8f - (0.1f * currentLevel)))
-                                type = 2;
-                            else if (typeP > (0.6f - (0.1f * currentLevel)))
-                                type = 1;
-                            characterManager.addEnemy(p, type);
+                            randomSpawnSingleEnemy(p);
                         }
                     }
                 }
                 y = (-levelSize / 2) - 200;
+            }
+
+            for (int j = 0; j < 100 + (currentLevel * 10); j++)
+            {
+                int sx = Game1.random.Next(500, (levelSize / 2) + 200);
+                int sy = Game1.random.Next(500, (levelSize / 2) + 200);
+                if (Game1.random.NextDouble() > 0.5)
+                    sx *= -1;
+                if (Game1.random.NextDouble() > 0.5)
+                    sy *= -1;
+                Vector2 spos = new Vector2(sx, sy);
+                randomSpawnSingleEnemy(spos);
+            }
+        }
+
+        public void randomSpawnSingleEnemy(Vector2 p)
+        {
+            int type = 0;
+            double typeP = Game1.random.NextDouble();
+            if (typeP > (0.9f - (0.1f * currentLevel)))
+                type = 2;
+            else if (typeP > (0.7f - (0.1f * currentLevel)))
+                type = 1;
+            Enemy1 e1 = characterManager.addEnemy(p, type);
+
+            double chaseP = Game1.random.NextDouble();
+            if (chaseP > (0.95f - (0.02f * currentLevel)))
+            {
+                e1.setChase(true);
             }
         }
 

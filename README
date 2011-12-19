@@ -2,7 +2,19 @@
 Ludum Dare 22
 -------------
 
-Title of Game: ???
+Title of Game: Planet Earth Is Blue
 Author: Adhesion
-Status: Sauce
 
+"This is ground control... your circuit's dead, there's something wrong..."
+On a routine mission, you stumble into a strange portal and find yourself
+-alone-
+in a parallel dimension.
+Search for the space eggs to survive and find your way home.
+Good luck !
+
+Controls
+--------
+WSAD / Left Stick: Move
+Left/Right / Right Stick: Rotate
+Space / Right Trigger: Shoot
+Left Control / Left Trigger: Bomb

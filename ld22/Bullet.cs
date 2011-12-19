@@ -12,7 +12,11 @@ namespace ld22
         protected int damage;
         protected int lifetime;
         protected int lifetimeThreshold;
+
         protected bool grow;
+        protected float growScale;
+
+        protected bool stay;
 
         public Bullet(Texture2D s, Vector2 p, Vector2 v, int _hp, LevelManager l, Color c, int d) :
             base(s, p, v, _hp, l)
@@ -27,6 +31,18 @@ namespace ld22
 
             bounded = false;
             grow = false;
+            stay = false;
+            growScale = 0.0f;
+        }
+
+        public bool isStay()
+        {
+            return stay;
+        }
+
+        public void setStay(bool s)
+        {
+            stay = s;
         }
 
         public int getDamage()
@@ -44,9 +60,15 @@ namespace ld22
             return lifetimeThreshold;
         }
 
-        public void setGrow(bool g)
+        public void setLifetime(int l)
+        {
+            lifetime = l;
+        }
+
+        public void setGrow(bool g, float s)
         {
             grow = g;
+            growScale = s;
         }
 
         public override void update(GameTime gameTime)
@@ -59,8 +81,8 @@ namespace ld22
             }
             if (grow)
             {
-                scale += 0.05f;
-                setBoxScale(boxScale + new Vector2(0.05f, 0.05f));
+                scale += growScale;
+                setBoxScale(boxScale + new Vector2(growScale, growScale));
             }
         }
 
