@@ -18,3 +18,11 @@ WSAD / Left Stick: Move
 Left/Right / Right Stick: Rotate
 Space / Right Trigger: Shoot
 Left Control / Left Trigger: Bomb
+
+Reqs
+----
+Note, if it crashes on startup it's most likely just missing a dependency.
+
+XNA Framework 3.0 (http://www.microsoft.com/download/en/details.aspx?id=22588)
+.NET Framework 3.5 (http://www.microsoft.com/download/en/details.aspx?id=21)
+DirectX 9.0c (http://www.microsoft.com/download/en/details.aspx?id=35) (but you probably already have that)
